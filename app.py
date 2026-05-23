@@ -61,7 +61,11 @@ def run_simulation(t_feed, t_w220, p_v1, p_mosto, p_etanol):
         "Etanol (%)": purezas
     })
     
-    return sys, prod, df_materia, W220.duty, W310.duty
+    # Calculamos la carga térmica (duty) mediante balance de entalpía (Salida - Entrada)
+    q_calor_w220 = W220.outs[0].H - W220.ins[0].H
+    q_frio_w310 = W310.outs[0].H - W310.ins[0].H
+    
+    return sys, prod, df_materia, q_calor_w220, q_frio_w310
 
 def calculate_economics(prod_mass, p_mosto, p_luz, p_vap, p_agu, p_eta, duty_heat, duty_cool):
     # Cálculos económicos aproximados para el dashboard
