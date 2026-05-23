@@ -4,7 +4,6 @@ import thermosteam as tmo
 import pandas as pd
 import google.generativeai as genai
 import os
-from io import BytesIO
 
 # ==========================================
 # 1. CONFIGURACIÓN Y ESTILOS
@@ -21,7 +20,8 @@ st.markdown("""
 # ==========================================
 # 2. LÓGICA DE SIMULACIÓN Y ECONOMÍA
 # ==========================================
-@st.cache_data
+# NOTA: Se eliminó @st.cache_data para evitar el error de serialización (pickle) con biosteam
+
 def run_simulation(t_feed, t_w220, p_v1, p_mosto, p_etanol):
     # Configuración termodinámica
     bst.main_flowsheet.clear()
@@ -61,14 +61,14 @@ def run_simulation(t_feed, t_w220, p_v1, p_mosto, p_etanol):
         "Etanol (%)": purezas
     })
     
-    # Calculamos la carga térmica (duty) mediante balance de entalpía (Salida - Entrada)
+    # SOLUCIÓN DE ERROR: Cálculo de Duty mediante balance de entalpía (Salida - Entrada)
     q_calor_w220 = W220.outs[0].H - W220.ins[0].H
     q_frio_w310 = W310.outs[0].H - W310.ins[0].H
     
     return sys, prod, df_materia, q_calor_w220, q_frio_w310
 
 def calculate_economics(prod_mass, p_mosto, p_luz, p_vap, p_agu, p_eta, duty_heat, duty_cool):
-    # Cálculos económicos aproximados para el dashboard
+    # Cálculos económicos aproximados
     costo_mat_prima = 1000 * p_mosto # 1000 kg/h fijos en alimentación
     costo_servicios = (abs(duty_heat)/1000) * p_vap * 0.01 + (abs(duty_cool)/1000) * p_agu * 0.01 + 50 * p_luz
     costo_total_hr = costo_mat_prima + costo_servicios
@@ -131,7 +131,7 @@ st.subheader("📌 Condiciones de la Corriente de Producto Final")
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Presión", f"{producto.P/101325:.2f} atm")
 k2.metric("Temperatura", f"{producto.T-273.15:.1f} °C")
-k3.metric("Flujo Básico (Másico)", f"{prod_mass:.2f} kg/h")
+k3.metric("Flujo Másico", f"{prod_mass:.2f} kg/h")
 k4.metric("Composición Etanol", f"{pureza_final:.1f} %")
 
 # --- SECCIÓN: INDICADORES ECONÓMICOS ---
@@ -224,7 +224,6 @@ if st.toggle("Habilitar Modo Tutor"):
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-1.5-flash')
         
-        # Prompt base exigido en las especificaciones
         system_prompt = f"""
         Actúa como un tutor experto en simulación de procesos, balances de materia y energía, diseño de plantas y análisis económico. 
         Explica los resultados de forma clara para estudiantes de ingeniería química. 
@@ -246,7 +245,6 @@ if st.toggle("Habilitar Modo Tutor"):
             st.session_state.messages.append({"role": "user", "content": prompt})
             st.chat_message("user").write(prompt)
             
-            # Generación de respuesta con contexto
             full_prompt = f"{system_prompt}\n\nPregunta del usuario: {prompt}"
             response = model.generate_content(full_prompt)
             
