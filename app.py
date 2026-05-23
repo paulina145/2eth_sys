@@ -196,11 +196,11 @@ st.divider()
 st.header("⚙️ Diagramas de Proceso y Documentación")
 d1, d2 = st.columns(2)
 with d1: 
-    if os.path.exists("assets/Bloques_ISO.pdf"): 
-        with open("assets/Bloques_ISO.pdf", "rb") as f: st.download_button("⬇️ Descargar Diagrama Bloques", f, "Bloques_ISO.pdf")
+    if os.path.exists("assets/Bloques_ISO(2).pdf"): 
+        with open("assets/Bloques_ISO(2).pdf", "rb") as f: st.download_button("⬇️ Descargar Diagrama Bloques", f, "Bloques_ISO.pdf")
 with d2:
-    if os.path.exists("assets/PFD_ISO.pdf"): 
-        with open("assets/PFD_ISO.pdf", "rb") as f: st.download_button("⬇️ Descargar PFD y P&ID", f, "PFD_ISO.pdf")
+    if os.path.exists("assets/PFD_ISO(2).pdf"): 
+        with open("assets/PFD_ISO(2).pdf", "rb") as f: st.download_button("⬇️ Descargar PFD y P&ID", f, "PFD_ISO.pdf")
 
 with st.expander("Ver Supuestos y Limitaciones del Modelo"):
     st.markdown("""
